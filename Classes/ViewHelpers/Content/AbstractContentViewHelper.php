@@ -111,7 +111,6 @@ abstract class AbstractContentViewHelper extends AbstractViewHelper
      */
     protected function getSlideRecordsFromPage($pageUid, $limit)
     {
-        $column = (integer) $this->arguments['column'];
         $order = $this->arguments['order'];
         if (false === empty($order)) {
             $sortDirection = strtoupper(trim($this->arguments['sortDirection']));
@@ -136,7 +135,15 @@ abstract class AbstractContentViewHelper extends AbstractViewHelper
                 $languageCondition .= ' AND uid NOT IN (' . $nestedQuery . ')';
             }
             $languageCondition .= ')';
-            $conditions = "pid = '" . (integer) $pageUid . "' AND colPos = '" . (integer) $column . "'" .
+            
+            $column = $this->arguments['column'];
+            if($column === '%') {
+				$colPosOperator = 'LIKE';
+			} else {
+				$colPosOperator = '=';
+				$column = (integer) $column;
+			}
+            $conditions = "pid = '" . (integer) $pageUid . "' AND colPos ".$colPosOperator." '" . $column . "'" .
                 $GLOBALS['TSFE']->cObj->enableFields('tt_content') . ' AND ' . $languageCondition;
         }
         if (true === (boolean) $this->arguments['sectionIndexOnly']) {
